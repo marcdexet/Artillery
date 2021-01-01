@@ -3,7 +3,7 @@ from typing import Tuple
 import pygame as pg
 import numpy as np
 from artillery.compute import Context, compute, new_ball, move
-from artillery.pieces import Canon, Target
+from artillery.pieces import Canon, Target, Ball
 
 RED = (150, 150, 150)
 
@@ -39,7 +39,7 @@ def run_game():
     delta_angle = 1.
     FONT_COLOR = (255,255,255)
     def stop_fn(p):
-        p[0][1] < 0
+        p._array[0][1] < 0
 
     canon = Canon(pos=(40,screen.get_height() - 20),size=(50, 50))
     target = Target(pos=(1000, screen.get_height() - 20))
@@ -53,12 +53,6 @@ def run_game():
 
         draw_landscape(screen)
         #canon = draw_canon(screen)
-
-        if ball is not None:
-            if not stop_fn(ball):
-                move(ball, ctx)
-
-            draw_ball(screen, ball)
 
         all_sprites.update()
         all_sprites.draw(screen)
@@ -79,10 +73,10 @@ def run_game():
                 modifying_angle = 0
                 modif_spring = 0
                 if e.key == pg.K_n:
-                    ball = new_ball(ctx=ctx)
-                    ball[0, :] = canon.rect.center
+                    ball = Ball(pos=canon.rect.center)
                     x, y = canon.vector
-                    ball[1, :] = np.array([x, -y]) * spring
+                    ball.set_initial_speed(np.array([x, -y]) * spring, ctx)
+                    all_sprites.add(ball)
                     print(f'VEC={canon.vector}, l={canon.vector.length()}, BALL={ball}')
                 elif e.key == pg.K_a:
                     modifying_angle += delta_angle

@@ -49,15 +49,21 @@ class Ball(Sprite):
 
     def __init__(self,pos=(0, 0), size=(5,5)):
         super(Ball, self).__init__()
+        self.ctx = None
         self.image = pg.Surface(size=size)
         self.rect = pg.draw.circle(self.image, pg.Color("red"), pos, 5)
         self.rect.center = pos
         self.pos = pos
-        self._array = np.zeros((2,2),dtype=float)
+        self.speed = pg.Vector2(0,0)
+        self._base_altitude = self.pos[1]
 
-    def set_initial_speed(self, speed):
-        self._array[1,:] = speed
+    def set_initial_speed(self, speed, ctx):
+        self.speed = speed
+        self.ctx = ctx
 
     def update(self, *args, **kwargs) -> None:
-        ctx = kwargs['ctx']
-        move(self._array, ctx)
+        self.speed += pg.Vector2(0., self.ctx.g_per_tick)
+        self.pos += self.speed
+        self.rect = self.image.get_rect(center=self.pos)
+        if self.pos[1] > self._base_altitude:
+            self.kill()
