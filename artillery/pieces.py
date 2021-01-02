@@ -34,24 +34,28 @@ class Canon(Sprite):
             self.vector = self.original_vector.rotate(self.angle)
             self.rect = self.image.get_rect(center=self.pos)
 
+
 class Target(Sprite):
 
     def __init__(self, pos=(0, 0), size=(20,5)):
         super(Target, self).__init__()
-        self.image = pg.Surface(size=size)
-        self.image.fill((255, 255, 255))
+        self.original_image = pg.image.load('sprites/target_tank.png')
+        self.image = self.original_image
         self.rect = self.image.get_rect()
         self.rect.center = pos
         self.pos = pos
 
 
+
 class Ball(Sprite):
 
-    def __init__(self,pos=(0, 0), size=(5,5)):
+    def __init__(self,pos=(0, 0), size=(10,10)):
         super(Ball, self).__init__()
         self.ctx = None
         self.image = pg.Surface(size=size)
-        self.rect = pg.draw.circle(self.image, pg.Color("red"), pos, 5)
+        self.image.fill(pg.Color("white"))
+        self.image.set_colorkey(pg.Color("white"))
+        self.rect = pg.draw.circle(self.image, pg.Color("red"), (5,5), 5)
         self.rect.center = pos
         self.pos = pos
         self.speed = pg.Vector2(0,0)
@@ -64,6 +68,9 @@ class Ball(Sprite):
     def update(self, *args, **kwargs) -> None:
         self.speed += pg.Vector2(0., self.ctx.g_per_tick)
         self.pos += self.speed
+        self.rect = pg.draw.circle(self.image, pg.Color("red"), self.pos, 5)
         self.rect = self.image.get_rect(center=self.pos)
-        if self.pos[1] > self._base_altitude:
-            self.kill()
+
+    def is_out(self):
+        return self.pos[1] > self._base_altitude
+
